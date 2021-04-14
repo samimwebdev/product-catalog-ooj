@@ -1,0 +1,9 @@
+.edit-product {
+  margin-right: 1em;
+}
+.edit-form {
+  display: flex;
+}
+.edit-form-input {
+  width: 100%;
+}
