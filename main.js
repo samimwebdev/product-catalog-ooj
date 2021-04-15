@@ -1,3 +1,13 @@
+//JavaScript CRUD
+//userInterface (DOM)
+//Data/state source
+//localStorage
+
+// C-create
+// R-Read
+// U-Update
+// D-Delete
+
 const storage = {
   getItems() {
     let items = ''
@@ -63,9 +73,9 @@ const UI = {
     const productData = data.getItems()
     productListUL.addEventListener('click', (e) => {
       if (e.target.classList.contains('delete-product')) {
-        UI.removeItem(e)
+        this.removeItem(e)
       } else if (e.target.classList.contains('edit-product')) {
-        UI.editItem(e)
+        this.editItem(e)
       }
     })
     window.addEventListener(
@@ -73,10 +83,10 @@ const UI = {
       UI.addItems.bind(null, productData)
     )
     addBtn.addEventListener('click', (e) => data.addItem(e))
-    filterInput.addEventListener('keyup', (e) => UI.filterProduct(e))
+    filterInput.addEventListener('keyup', (e) => this.filterProduct(e))
   },
   addItems(productList) {
-    const { productListUL } = UI.selectors()
+    const { productListUL } = this.selectors()
     const productData = data.getItems()
     productListUL.innerHTML = ''
     if (productData.length > 0) {
@@ -102,12 +112,6 @@ const UI = {
     return parseInt(target.id.split('-')[1])
   },
   updateItem(e, id) {
-    e.preventDefault()
-    debugger
-    if (e.keycode === 13) {
-      console.log('you press enter')
-      return false
-    }
     const {
       showMessage,
       addItems,
@@ -123,7 +127,7 @@ const UI = {
     if (inputIsInvalid) {
       showMessage('Invalid Input Data')
     } else {
-      addItems(data.updateItem(id))
+      addItems.bind(this, data.updateItem(id))
       resetInput()
       clearUpdateState.call(UI)
     }
@@ -162,7 +166,7 @@ const UI = {
     }
     //e.style.display = 'none'
     this.populateInput(foundProduct.name, foundProduct.price, id)
-    debugger
+
     this.showUpdateState(e, foundProduct.id)
   },
   populateInput(name, price) {
@@ -289,3 +293,20 @@ const data = {
 
 //UI
 UI.init()
+
+const obj = {
+  name: 'samim',
+  showName() {
+    console.log(this) //obj
+    // const $that = this
+    return () => {
+      return this.name
+    }
+  }
+}
+
+//Arrow function - NO this
+console.log(obj.showName()())
+
+const result = obj.showName()
+result()

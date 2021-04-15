@@ -76,13 +76,14 @@ function showMessage(message = '') {
   msg.textContent = message
 }
 
+//https://stackoverflow.com/questions/6449611/check-whether-a-value-is-a-number-in-javascript-or-jquery
+//!(!isNaN(parseFloat(price)) && isFinite(price))
 function validateInput(name, price) {
   return (
     name !== '' && price !== '' && !isNaN(parseFloat(price)) && isFinite(price)
   )
 }
-//https://stackoverflow.com/questions/6449611/check-whether-a-value-is-a-number-in-javascript-or-jquery
-//!(!isNaN(parseFloat(price)) && isFinite(price))
+
 //Adding item to the productData
 const addItem = (e) => {
   e.preventDefault()
