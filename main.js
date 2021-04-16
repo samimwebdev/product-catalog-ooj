@@ -78,15 +78,15 @@ const UI = {
         this.editItem(e)
       }
     })
-    window.addEventListener(
-      'DOMContentLoaded',
-      UI.addItems.bind(null, productData)
-    )
-    addBtn.addEventListener('click', (e) => data.addItem(e))
-    filterInput.addEventListener('keyup', (e) => this.filterProduct(e))
+    window.addEventListener('DOMContentLoaded', (e) => {
+      this.addItems(productData)
+    })
+    addBtn.addEventListener('click', data.addItem)
+    filterInput.addEventListener('keyup', this.filterProduct)
   },
   addItems(productList) {
     const { productListUL } = this.selectors()
+    const { showMessage } = this
     const productData = data.getItems()
     productListUL.innerHTML = ''
     if (productData.length > 0) {
@@ -104,14 +104,14 @@ const UI = {
         productListUL.appendChild(li)
       })
     } else {
-      UI.showMessage('please add item to your catalog')
+      showMessage('please add item to your catalog')
     }
   },
   getId(e) {
     const target = e.target.parentElement.parentElement
     return parseInt(target.id.split('-')[1])
   },
-  updateItem(e, id) {
+  updateItem(id) {
     const {
       showMessage,
       addItems,
@@ -127,7 +127,7 @@ const UI = {
     if (inputIsInvalid) {
       showMessage('Invalid Input Data')
     } else {
-      addItems.bind(this, data.updateItem(id))
+      addItems.call(this, data.updateItem(id))
       resetInput()
       clearUpdateState.call(UI)
     }
@@ -136,7 +136,10 @@ const UI = {
     const { addBtn } = this.selectors()
     this.resetInput()
     addBtn.style.display = 'block'
-    document.querySelector('.update-product').remove()
+    /* In edit state if anyone click delete btn we are going to remove the update Product button */
+    if (document.querySelector('.update-product')) {
+      document.querySelector('.update-product').remove()
+    }
   },
 
   updateState() {
@@ -164,7 +167,6 @@ const UI = {
     if (!foundProduct) {
       UI.showMessage('some Unknown Error occured')
     }
-    //e.style.display = 'none'
     this.populateInput(foundProduct.name, foundProduct.price, id)
 
     this.showUpdateState(e, foundProduct.id)
@@ -175,6 +177,7 @@ const UI = {
     priceInput.value = price
   },
   showUpdateState(e, id) {
+    const { updateItem } = this
     const { formElm, addBtn } = this.selectors()
     let updateBtn
     //create updateBtn and input to UI
@@ -187,7 +190,8 @@ const UI = {
     //selecting update Btn
     updateBtn = document.querySelector('.update-product')
     updateBtn.addEventListener('click', function (e) {
-      UI.updateItem(e, id)
+      e.preventDefault()
+      updateItem.call(UI, id)
     })
   },
   filterProduct(e) {
@@ -236,7 +240,8 @@ const data = {
   addItem(e) {
     e.preventDefault()
     const { nameInput, priceInput } = UI.selectors()
-    const productData = this.getItems()
+    const { addItems, resetInput, showMessage, validateInput } = UI
+    const productData = data.getItems()
     const name = nameInput.value
     const price = priceInput.value
 
@@ -247,10 +252,10 @@ const data = {
       id = productData[productData.length - 1].id + 1
     }
 
-    const inputIsInValid = UI.validateInput(name, price)
+    const inputIsInValid = validateInput(name, price)
 
     if (inputIsInValid) {
-      UI.showMessage('please fill up necessary and valid information')
+      showMessage('please fill up necessary and valid information')
     } else {
       const data = {
         id,
@@ -259,8 +264,8 @@ const data = {
       }
       productData.push(data)
       storage.saveItem(data)
-      UI.addItems(productData)
-      UI.resetInput()
+      addItems.call(UI, productData)
+      resetInput()
     }
   },
   updateItem(id) {
@@ -291,22 +296,5 @@ const data = {
   }
 }
 
-//UI
+//initializing all event listener  and initial flushing of data from localStorage
 UI.init()
-
-const obj = {
-  name: 'samim',
-  showName() {
-    console.log(this) //obj
-    // const $that = this
-    return () => {
-      return this.name
-    }
-  }
-}
-
-//Arrow function - NO this
-console.log(obj.showName()())
-
-const result = obj.showName()
-result()
